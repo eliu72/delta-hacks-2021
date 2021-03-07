@@ -3,13 +3,17 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import cv2
 
-
 import io
 import os
 
 # Imports the Google Cloud client library
 from google.cloud import vision
 from flask.wrappers import Response
+import time
+
+# run python flask in virtual env
+# .\env\Scripts\activate.bat
+
 
 # Instantiates a client
 client = vision.ImageAnnotatorClient()
@@ -20,6 +24,10 @@ db = SQLAlchemy(app)
 
 global live 
 live = True
+
+global bp, bp_value
+bp = 'null'
+bp_value = 'null'
 
 class HealthRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,10 +43,18 @@ class HealthRecord(db.Model):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
+    global bp, bp_value
     if request.method == 'POST':
-        return "hello"
+        return 
     else:
-        return render_template('index.html')
+        print(bp)
+
+        return render_template('index.html', bp_conditions=bp, bp_value=bp_value)
+
+# @app.route('/see_results', methods=['POST', 'GET'])
+# def see_results():
+#     global bp
+#     return render_template('high-risk.html', bp_conditions=bp)
 
 @app.route('/video_feed')
 def video_feed():
@@ -60,6 +76,7 @@ def livestream():
 
         img_counter = 0
         global live
+        frame = None
         while(live):
             ret, frame = cam.read()
             if not ret:
@@ -97,9 +114,51 @@ def livestream():
 def background_process_test():
     # do stuff on button click
     global live
+    global bp, bp_value
     live = False
-    identifyBP()
-    return ("nothing")
+    final_bp = identifyBP()
+    print(final_bp)
+    setBPConditions(final_bp)
+    bp_value = str(final_bp[0]) + " / " + str(final_bp[1])
+
+    return redirect('/')
+
+@app.route('/restart')
+def restart():
+    reset()
+    return Response(livestream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def reset():
+    global live
+    live = True
+    bp = 'null'
+    bp_value = 'null'
+
+def setBPConditions(final_bp):
+    global bp
+    if final_bp[0] == 0:
+        return
+    elif (final_bp[0] <= 120) and (final_bp[1] <= 80):
+        bp = "low"
+        return
+    elif (final_bp[0] <= 139) and (final_bp[1] <= 89):
+        bp = "med"
+        return
+    else:
+        bp = "high"
+        return
+    
+
+def processTexts(texts):
+    final_bp = [0,0,0]
+
+    i = 0
+    for text in texts:
+        if text.description.isnumeric():
+            final_bp[i]=int(text.description)
+            i += 1
+    
+    return final_bp
 
 def identifyBP():
     # The name of the image file to annotate
@@ -123,6 +182,10 @@ def identifyBP():
                     for vertex in text.bounding_poly.vertices])
 
         print('bounds: {}'.format(','.join(vertices)))
+    
+    final_bp = processTexts(texts)
+
+    return final_bp
     
     if response.error.message:
         raise Exception(

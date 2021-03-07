@@ -4,7 +4,6 @@
 {% endblock %}
 
 {% block body %}
-<h1>Template</h1>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type=text/javascript>
@@ -18,14 +17,87 @@
             return false;
           });
         });
+        $(function() {
+          $('a#reset').on('click', function(e) {
+            e.preventDefault()
+            $.getJSON('/restart',
+                function(data) {
+              //do nothing
+            });
+            return false;
+          });
+        });
+        $("#calculate").keyup(function(){
+            var text = $(this).val();
+
+            $.ajax({
+              url: "/see_results",
+              type: "get",
+              data: {jsdata: text},
+              success: function(response) {
+                $("#return").html(response);
+              },
+              error: function(xhr) {
+                //Do Something to handle error
+              }
+            });
+        });
 </script>
 
-<div class='container'>
-    <h3>Test</h3>
+<div class='container'  align="middle">
+    <div class="container" style="height:100px; background-color: white; box-shadow: 0px 5px 10px #888888;" align="middle">
+      <img src="{{ url_for('static', filename='logo.png') }}" align="middle" alt="Healthy Heart" style="margin: 16px;">
+    </div>
+    
+
+    {% if bp_value == "null" %}
+        <img src="{{ url_for('static', filename='text.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
         <form>
-            <a href=# id=test><button class='btn btn-default'>Test</button></a>
-        </form>
-    <img src="{{ url_for('video_feed') }}" width="100%">
+          <a href=# id=test>
+            <button class='btn btn-default' 
+              style="background-color: #C0392B; color: white;  font-size: larger; margin-bottom: 20px; width: 200px; height: 45px; border-radius: 10px; font-family: 'Poppins', sans-serif;">
+              Capture Photo
+            </button>
+        </a>
+      </form>
+      <img src="{{ url_for('video_feed') }}" width="100%">
+      <form>
+        <a href=# id=calculate>
+          <button class='btn btn-default' 
+            style="background-color: #C0392B; color: white;  font-size: larger; margin-bottom: 20px; width: 200px; height: 45px; border-radius: 10px; font-family: 'Poppins', sans-serif;">
+            Calculate Results
+          </button>
+      </a>
+      </form>
+
+    {% else %}
+      <br>
+      <h2 style="font-family: 'Poppins';">Your blood pressure is:</h2>
+      <h1 style="font-family: 'Poppins';">{{ bp_value }}</h1>
+
+      <div id="return"></div>
+      {% if bp_conditions == "null" %}
+        <img src="{{ url_for('static', filename='white.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+      {% elif bp_conditions == "high" %}
+        <img src="{{ url_for('static', filename='high-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+      {% elif bp_conditions == "med" %}
+        <img src="{{ url_for('static', filename='med-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+      {% elif bp_conditions == "low" %} 
+        <img src="{{ url_for('static', filename='low-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+      {% endif %}
+  
+      <a href="https://www.heartandstroke.ca/heart-disease/risk-and-prevention/condition-risk-factors/high-blood-pressure" target="_blank">
+        <button class='btn btn-default' 
+          style="background-color: #C0392B; color: white;  font-size: larger; margin-bottom: 20px; width: 200px; height: 45px; border-radius: 10px; font-family: 'Poppins', sans-serif;">
+          Learn More
+        </button>
+      </a>
+
+    {% endif %}
+
+
+
+
 
 </div>
 {% endblock %}

@@ -1,0 +1,28 @@
+<!-- {% extends 'base.html' %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+
+<div class='container'  align="middle">
+    <div class="container" style="height:100px; background-color: white; box-shadow: 0px 5px 10px #888888;" align="middle">
+      <img src="{{ url_for('static', filename='logo.png') }}" align="middle" alt="Healthy Heart" style="margin: 16px;">
+    </div>
+    <div class="container">
+        <h2 style="font-family: Poppins;">Your blood pressue:</h2>
+        <h3 style="font-family: Poppins;"> {{ bp_value }} </h3>
+    </div>
+    {% if bp_conditions == "null" %}
+      <img src="{{ url_for('static', filename='white.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+    {% elif bp_conditions == "high" %}
+      <img src="{{ url_for('static', filename='high-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+    {% elif bp_conditions == "med" %}
+      <img src="{{ url_for('static', filename='med-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+    {% elif bp_conditions == "low" %} 
+      <img src="{{ url_for('static', filename='low-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+    {% endif %}
+    <img src="{{ url_for('static', filename='high-risk.png') }}" align="middle" alt="Instructions" style="margin: 30px 0px;">
+</div>
+{% endblock %} -->
+<p>hello</p>
