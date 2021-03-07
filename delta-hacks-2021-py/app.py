@@ -116,6 +116,7 @@ def background_process_test():
     global live
     global bp, bp_value
     live = False
+    time.sleep(3)
     final_bp = identifyBP()
     print(final_bp)
     setBPConditions(final_bp)
